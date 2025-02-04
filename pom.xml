@@ -48,12 +48,6 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 			<version>3.3.4</version>
 		</dependency>
-		<!-- web tabanlı uygulamarın güvenliği için-->
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-web</artifactId>
-			<version>6.3.3</version>
-		</dependency>
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
@@ -135,6 +129,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 				<configuration>
 					<annotationProcessorPaths>
 						<path>
@@ -148,6 +143,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.3.1</version>
 				<configuration>
 					<excludes>
 						<exclude>
