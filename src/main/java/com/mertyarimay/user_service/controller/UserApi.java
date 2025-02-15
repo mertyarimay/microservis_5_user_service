@@ -2,11 +2,15 @@ package com.mertyarimay.user_service.controller;
 
 import com.mertyarimay.user_service.business.dto.CreateUserDto;
 import com.mertyarimay.user_service.business.dto.UpdateUserDto;
+import com.mertyarimay.user_service.business.dto.UserLoginResponse;
 import com.mertyarimay.user_service.business.services.service.UserService;
+import com.mertyarimay.user_service.exception.BusinessException;
+import com.mertyarimay.user_service.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user/api")
 public class UserApi {
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
 
     @PostMapping("/register")
@@ -27,14 +32,16 @@ public class UserApi {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<Object>login(@RequestBody @Valid CreateUserDto createUserDto){
-        CreateUserDto createUser=userService.login(createUserDto);
-        if(createUser!=null){
-            return ResponseEntity.ok("Login İşlemi Başarılı");
+    public String login(@RequestBody @Valid CreateUserDto createUserDto){
+        UserLoginResponse userLoginResponse=userService.login(createUserDto);
+        if(userLoginResponse!=null){
+            return jwtUtil.generateToken(userLoginResponse.getEmail(),userLoginResponse.getId(),userLoginResponse.getRoleNames());
         }else {
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email veya Şifren Yanlış");
+            throw new BusinessException("Geçersiz mail veya şifre girdiniz");
+
         }
-    }
+}
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_USER')")
     @PutMapping("/update/{id}")
     public ResponseEntity<Object> update(@RequestBody @Valid UpdateUserDto updateUserDto, @PathVariable("id") int id){
         UpdateUserDto updateUser=userService.updateUser(updateUserDto,id);
@@ -46,7 +53,7 @@ public class UserApi {
         }
 
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_USER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object>delete(@PathVariable("id") int id){
         boolean delete=userService.delete(id);

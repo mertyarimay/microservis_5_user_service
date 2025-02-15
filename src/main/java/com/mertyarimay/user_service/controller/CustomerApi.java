@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +31,12 @@ public class CustomerApi {
     }
 
     @GetMapping("/getAll")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<GetAllCustomerDto>getAll(){
         List<GetAllCustomerDto>getAllCustomerDtos=customerService.getAll();
         return getAllCustomerDtos;
     }
-
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     @GetMapping("/getById/{id}")
     public ResponseEntity<Object>getById(@PathVariable ("id") int id){
         GetByIdCustomerDto customerDto=customerService.getById(id);
@@ -45,6 +47,7 @@ public class CustomerApi {
         }
 
     }
+    @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     @PutMapping("/update/{id}")
     public ResponseEntity<Object>update(@RequestBody @Valid UpdateCustomerDto updateCustomerDto,@PathVariable("id") int id){
         UpdateCustomerDto updateCustomer=customerService.update(updateCustomerDto,id);
