@@ -73,10 +73,10 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity=userRepository.findById(id).orElse(null);
         if(userEntity!=null){
             userRepository.deleteById(id);
-            return true;
+            if(!userRepository.existsById(id)){
+                return true;
+            }
         }
-        else{
-            return false;
-        }
+        return false;
     }
 }
