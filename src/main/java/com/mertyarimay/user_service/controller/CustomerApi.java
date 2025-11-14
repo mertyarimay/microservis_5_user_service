@@ -38,23 +38,23 @@ public class CustomerApi {
     }
     @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     @GetMapping("/getById/{id}")
-    public ResponseEntity<Object>getById(@PathVariable ("id") int id){
-        GetByIdCustomerDto customerDto=customerService.getById(id);
+    public ResponseEntity<Object>getById(@PathVariable ("id") int id,@RequestHeader("Authorization")String token){
+        GetByIdCustomerDto customerDto=customerService.getById(id,token);
         if(customerDto!=null){
             return ResponseEntity.ok(customerDto);
         }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Girdiğiniz Id Bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("İşlem Başarısız!!!!");
         }
 
     }
     @PreAuthorize("hasAuthority('ROLE_CUSTOMER')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object>update(@RequestBody @Valid UpdateCustomerDto updateCustomerDto,@PathVariable("id") int id){
-        UpdateCustomerDto updateCustomer=customerService.update(updateCustomerDto,id);
+    public ResponseEntity<Object>update(@RequestBody @Valid UpdateCustomerDto updateCustomerDto,@PathVariable("id") int id,@RequestHeader("Authorization")String token){
+        UpdateCustomerDto updateCustomer=customerService.update(updateCustomerDto,id,token);
         if(updateCustomer!=null){
             return ResponseEntity.ok("Güncelleme İşleminiz Başarılı Bir Şekilde Gerçekleşti");
         }else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Güncellemek istediğiniz ID Bulunamadı");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("İşlem Başarısız!!!");
         }
     }
 }

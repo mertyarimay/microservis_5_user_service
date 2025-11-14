@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CustomerService {
     CreateCustomerDto create(CreateCustomerDto createCustomerDto);
-    UpdateCustomerDto update(UpdateCustomerDto updateCustomerDto ,int id);
+    UpdateCustomerDto update(UpdateCustomerDto updateCustomerDto ,int id,String token);
     List<GetAllCustomerDto>getAll();
-    GetByIdCustomerDto getById(int id);
+    GetByIdCustomerDto getById(int id,String token);
 }

@@ -11,6 +11,7 @@ import com.mertyarimay.user_service.data.entity.UserEntity;
 import com.mertyarimay.user_service.data.repository.ICustomerRepository;
 import com.mertyarimay.user_service.data.repository.IUserRepository;
 import com.mertyarimay.user_service.mappers.ModelMapperService;
+import com.mertyarimay.user_service.util.JwtUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final ICustomerRepository customerRepository;
     private final ModelMapperService modelMapperService;
     private final CustomerServiceRules customerServiceRules;
+    private final JwtUtil jwtUtil;
     @Override
     public CreateCustomerDto create(CreateCustomerDto createCustomerDto) {
         UserEntity userEntity=userRepository.findById(createCustomerDto.getUserId()).orElse(null);
@@ -49,24 +51,40 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public GetByIdCustomerDto getById(int id) {
+    public GetByIdCustomerDto getById(int id,String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
         CustomerEntity customerEntity=customerRepository.findById(id).orElse(null);
        if(customerEntity!=null){
-           GetByIdCustomerDto customerDto=modelMapperService.forResponse().map(customerEntity,GetByIdCustomerDto.class);
-           return customerDto;
+           String tokenUserId=jwtUtil.extractUserId(token);
+           int tokenId=Integer.parseInt(tokenUserId);
+           if(tokenId==id){
+               GetByIdCustomerDto customerDto=modelMapperService.forResponse().map(customerEntity,GetByIdCustomerDto.class);
+               return customerDto;
+           }
+           return null;
        }
        return null;
     }
 
     @Override
-    public UpdateCustomerDto update(UpdateCustomerDto updateCustomerDto,int id) {
+    public UpdateCustomerDto update(UpdateCustomerDto updateCustomerDto,int id,String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
         CustomerEntity customerEntity=customerRepository.findById(id).orElse(null);
         if(customerEntity!=null){
-            customerServiceRules.checkPhoneNumber(updateCustomerDto.getPhoneNumber());
-            customerEntity.setPhoneNumber(updateCustomerDto.getPhoneNumber());
-            customerRepository.save(customerEntity);
-            UpdateCustomerDto updateCustomer=modelMapperService.forRequest().map(customerEntity,UpdateCustomerDto.class);
-            return updateCustomer;
+            String tokenUserId=jwtUtil.extractUserId(token);
+            int tokenId=Integer.parseInt(tokenUserId);
+            if(id==tokenId){
+                customerServiceRules.checkPhoneNumber(updateCustomerDto.getPhoneNumber());
+                customerEntity.setPhoneNumber(updateCustomerDto.getPhoneNumber());
+                customerRepository.save(customerEntity);
+                UpdateCustomerDto updateCustomer=modelMapperService.forRequest().map(customerEntity,UpdateCustomerDto.class);
+                return updateCustomer;
+            }
+            return null;
         }
         else {
             return null;

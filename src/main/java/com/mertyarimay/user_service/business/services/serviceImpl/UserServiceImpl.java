@@ -8,6 +8,8 @@ import com.mertyarimay.user_service.data.entity.UserEntity;
 import com.mertyarimay.user_service.data.repository.ICustomerRepository;
 import com.mertyarimay.user_service.data.repository.IUserRepository;
 import com.mertyarimay.user_service.mappers.ModelMapperService;
+import com.mertyarimay.user_service.security.JwtAuthenticationFilter;
+import com.mertyarimay.user_service.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,8 @@ public class UserServiceImpl implements UserService {
     private final ModelMapperService modelMapperService;
     private final PasswordEncoder passwordEncoder;
     private final ICustomerRepository customerRepository;
+    private final JwtUtil jwtUtil;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
     @Override
@@ -54,28 +58,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UpdateUserDto updateUser(UpdateUserDto updateUserDto, int id) {
-        UserEntity userEntity=userRepository.findById(id).orElse(null);
+    public UpdateUserDto updateUser(UpdateUserDto updateUserDto, int id,String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
+        UserEntity userEntity=userRepository.findByEmail(updateUserDto.getEmail());
         if(userEntity!=null&&passwordEncoder.matches(updateUserDto.getOldPassword(),userEntity.getPassword())){
-            userEntity.setPassword(passwordEncoder.encode(updateUserDto.getPassword()));
-            userEntity.setEmail(updateUserDto.getEmail());
-            userRepository.save(userEntity);
-            customerRepository.updateCustomerMail(userEntity.getEmail(),id);
-            UpdateUserDto updateUser=modelMapperService.forRequest().map(userEntity,UpdateUserDto.class);
-            return updateUser;
+            String tokenUserId=jwtUtil.extractUserId(token);
+            int tokenId=Integer.parseInt(tokenUserId);
+            if(id==tokenId){
+                userEntity.setPassword(passwordEncoder.encode(updateUserDto.getPassword()));
+                userEntity.setEmail(updateUserDto.getEmail());
+                userRepository.save(userEntity);
+                customerRepository.updateCustomerMail(userEntity.getEmail(),id);
+                UpdateUserDto updateUser=modelMapperService.forRequest().map(userEntity,UpdateUserDto.class);
+                return updateUser;
+            }
         }
         return null;
 
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean delete(int id,String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7).trim();
+        }
         UserEntity userEntity=userRepository.findById(id).orElse(null);
         if(userEntity!=null){
-            userRepository.deleteById(id);
-            if(!userRepository.existsById(id)){
-                return true;
+            String tokenUserId=jwtUtil.extractUserId(token);
+            int tokenId=Integer.parseInt(tokenUserId);
+            if(id==tokenId){
+                userRepository.deleteById(id);
+                if(!userRepository.existsById(id)){
+                    return true;
+                }
             }
+            return false;
         }
         return false;
     }

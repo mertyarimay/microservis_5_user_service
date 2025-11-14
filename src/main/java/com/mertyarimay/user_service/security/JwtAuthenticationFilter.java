@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             // URL'deki ID'yi dinamik olarak bulmak
-            String[] urlSegments = request.getRequestURI().split("/");
+           /* String[] urlSegments = request.getRequestURI().split("/");
             // URL'deki her segmenti kontrol et
             for (String segment : urlSegments) {
                 if (segment.matches("\\d+")) {  // Eğer segment sayısal bir değerse (ID)
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                     break;  // ID bulunduktan sonra döngüyü bitir
                 }
-            }
+            }*/
 
             // Rolleri "ROLE_" ile prefixli şekilde set ediyoruz  çünkü gelen roller bu şekilde başlaması lazım
             List<String> authorities = roles.stream()

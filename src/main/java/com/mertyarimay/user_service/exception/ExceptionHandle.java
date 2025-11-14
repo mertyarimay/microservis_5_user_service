@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 
-@RestControllerAdvice
+@RestControllerAdvice //tüm controller için  global bir exception handler tanımlar
 public class ExceptionHandle {
-    @ExceptionHandler
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    @ExceptionHandler  //belirli exception türlerini  yakalamak için kullanılır
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)  //bu fırlatılan exceptiona karşılık hangi hata kodunu döneceğini belirler
     public ProblemDetails businessException(BusinessException businessException){
         ProblemDetails problemDetails=new ProblemDetails();
         problemDetails.setMessage(businessException.getMessage());

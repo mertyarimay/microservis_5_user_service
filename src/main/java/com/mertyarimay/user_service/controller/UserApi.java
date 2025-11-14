@@ -43,20 +43,19 @@ public class UserApi {
 }
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_USER')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<Object> update(@RequestBody @Valid UpdateUserDto updateUserDto, @PathVariable("id") int id){
-        UpdateUserDto updateUser=userService.updateUser(updateUserDto,id);
+    public ResponseEntity<Object> update(@RequestBody @Valid UpdateUserDto updateUserDto, @PathVariable("id") int id,@RequestHeader("Authorization")String token){
+        UpdateUserDto updateUser=userService.updateUser(updateUserDto,id,token);
         if(updateUser!=null){
             return ResponseEntity.ok("Güncelleme işleminiz başarılı olmuştur");
         }
         else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Güncelleme İşlemi Başarısız olmuştur");
         }
-
     }
     @PreAuthorize("hasAnyAuthority('ROLE_CUSTOMER', 'ROLE_USER')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object>delete(@PathVariable("id") int id){
-        boolean delete=userService.delete(id);
+    public ResponseEntity<Object>delete(@PathVariable("id") int id,@RequestHeader("Authorization")String token){
+        boolean delete=userService.delete(id,token);
         if(delete==true){
             return ResponseEntity.ok("Silme işlemi Başarılı olmuştur");
         }else {

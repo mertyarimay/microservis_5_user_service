@@ -8,6 +8,6 @@ public interface UserService {
 
     CreateUserDto create(CreateUserDto createUserDto);
     UserLoginResponse login(CreateUserDto createUserDto);
-    UpdateUserDto updateUser(UpdateUserDto updateUserDto, int id);
-    boolean delete (int id);
+    UpdateUserDto updateUser(UpdateUserDto updateUserDto, int id,String token);
+    boolean delete (int id,String token);
 }
